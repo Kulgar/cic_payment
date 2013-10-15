@@ -1,4 +1,3 @@
-#encoding: utf-8
 # Paiement CIC
 
 Paiement CIC is a plugin to ease credit card payment with the CIC / Credit Mutuel banks system version 3.0.
@@ -15,9 +14,11 @@ In your Gemfile
 
 ## USAGE
 
-Create a paiement_cic.yml config file in Rails.root/config:
+### Setup
 
-    development:
+Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
+
+    base: &base
       # Hmac key calculated with the js calculator given by CIC
       hmac_key: "AA123456AAAAAA789123BBBBBB123456CCCCCC12345678"
 
@@ -30,9 +31,6 @@ Create a paiement_cic.yml config file in Rails.root/config:
       # Merchant name
       societe: "marchantname"
 
-      # Bank gateway URL
-      target_url: "https://paiement.creditmutuel.fr/test/paiement.cgi"
-
       # Auto response URL
       url_retour: 'http://return.fr'
 
@@ -43,17 +41,20 @@ Create a paiement_cic.yml config file in Rails.root/config:
       url_retour_err: 'http://return.err'
 
     production:
-      # Should be mostly the same as above, except target_url
-      hmac_key: "AA123456AAAAAA789123BBBBBB123456CCCCCC12345678"
-      tpe: "010203"
-      version: "3.0"
-      societe: "marchantname"
       target_url: "https://paiement.creditmutuel.fr/paiement.cgi"
-      url_retour: 'http://return.fr'
-      url_retour_ok: 'http://return.ok'
-      url_retour_err: 'http://return.err'
+      <<: *base
 
-***Note:*** this file _must_ be named _exactly_ 'paiement_cic.yml' or an exception would be raised
+    developement:
+      target_url: "https://paiement.creditmutuel.fr/test/paiement.cgi"
+      <<: *base
+
+    test:
+      target_url: "https://paiement.creditmutuel.fr/test/paiement.cgi"
+      <<: *base
+
+***Note:*** this file _must_ be named _exactly_ `paiement_cic.yml` or an exception would be raised
+
+`target_url` needs to point to the controller method handling the bank response (e.g. see below `payments#create`)
 
 ### In the controller :
 
@@ -64,14 +65,14 @@ Create a paiement_cic.yml config file in Rails.root/config:
         @request = PaiementCic.new.request(:montant => '123', :reference => '456')
       end
 
-### Then in the view, generate the form :
+### Then in the view, generate the form:
 
   The form generated is populated with hidden fields that will be sent to the bank gateway
 
     # :button_text and :button_class are optionnal, use them for style cutomization if needed
     = paiement_cic_form(@request, :button_text => 'Payer', :button_class => 'btn btn-pink')
 
-### Now, listen to the bank transaction result :
+### Now, listen to the bank transaction result:
 
   Just add a create action in your paiement controller
 
@@ -98,6 +99,7 @@ Create a paiement_cic.yml config file in Rails.root/config:
 ## Contributors
 * Novelys Team : original gem and cryptographic stuff
 * Guillaume Barillot : refactoring and usage simplification
+* Michael Brung : configuration file refactoring.
 
 ## Licence
 released under the MIT license
