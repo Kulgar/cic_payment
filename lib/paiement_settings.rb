@@ -1,7 +1,6 @@
 #encoding: utf-8
 
 class PaiementSettings
-
   def initialize
     @settings = {}
   end
@@ -43,24 +42,38 @@ private
 
   def load_yaml_config
     @settings ||= {}
-    begin
-      config = YAML::load_file(File.join(Rails.root, 'config', 'paiement_cic.yml'))
-    rescue
-      raise "PaiementCic error ! Invalid or missing /config/paiement_cic.yml config file"
+
+    path = Rails.root.join('config', 'paiement_cic.yml')
+
+    if File.exist?(path)
+      config = YAML::load(ERB.new(File.read(path)).result)
+    else
+      raise "File config/paiement_cic.yml does not exist"
     end
 
     env = Rails.env
+
+    unless config[env]
+      raise "config/paiement_cic.yml is missing a section for `#{env}`"
+    end
 
     settings = {
       :tpe            => config[env]['tpe'],
       :version        => config[env]['version'],
       :societe        => config[env]['societe'],
       :hmac_key       => config[env]['hmac_key'],
-      :target_url     => config[env]['target_url'],
-      :url_retour     => config[env]['url_retour'],
-      :url_retour_ok  => config[env]['url_retour_ok'],
-      :url_retour_err => config[env]['url_retour_err']
+      :target_url     => config[env]['target_url']
     }
+
+    %i(url_retour url_retour_ok url_retour_err).each do |k|
+      provided_setting_for_key = config[env][k.to_s]
+
+      if provided_setting_for_key.is_a? Hash
+        settings[k] =  Rails.application.routes.url_helpers.url_for(provided_setting_for_key)
+      else
+        settings[k] = provided_setting_for_key
+      end
+    end
 
     settings.each do |key, value|
       if value
