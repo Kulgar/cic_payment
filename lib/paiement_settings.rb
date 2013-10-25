@@ -69,7 +69,9 @@ private
       provided_setting_for_key = config[env][k.to_s]
 
       if provided_setting_for_key.is_a? Hash
-        settings[k] =  Rails.application.routes.url_helpers.url_for(provided_setting_for_key)
+        merged_setting_for_key = provided_setting_for_key.merge!(Rails.application.config.payments.default_url_options)
+        
+        settings[k] =  Rails.application.routes.url_helpers.url_for(merged_setting_for_key)
       else
         settings[k] = provided_setting_for_key
       end
