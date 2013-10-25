@@ -40,16 +40,16 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
       # Error/cancel return path
       url_retour_err: 'http://return.err'
 
-    production:
-      target_url: "https://paiement.creditmutuel.fr/paiement.cgi"
-      <<: *base
-
-    developement:
       target_url: "https://paiement.creditmutuel.fr/test/paiement.cgi"
+
+    production:
+      <<: *base
+      target_url: "https://paiement.creditmutuel.fr/paiement.cgi"
+
+    development:
       <<: *base
 
     test:
-      target_url: "https://paiement.creditmutuel.fr/test/paiement.cgi"
       <<: *base
 
 ***Note:*** this file _must_ be named _exactly_ `paiement_cic.yml` or an exception would be raised
