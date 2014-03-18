@@ -1,12 +1,12 @@
 #encoding: utf-8
 module FormHelpers
 
-  def paiement_cic_form(payment, options = {})
+  def cic_payment_form(payment, options = {})
 
     options[:button_text] ||= 'Payer'
     options[:button_class] ||= ''
 
-    html = "<form name='paiementcic' action='#{payment.target_url}' method='post'>\n"
+    html = "<form name='cic_payment_form' action='#{payment.target_url}' method='post'>\n"
 
     html << "  <input type='hidden' name='version'           id='version'        value='#{payment.version}' />\n"
     html << "  <input type='hidden' name='TPE'               id='TPE'            value='#{payment.tpe}' />\n"
@@ -22,7 +22,7 @@ module FormHelpers
     html << "  <input type='hidden' name='texte-libre'       id='texte-libre'    value='#{payment.texte_libre}' />\n"
     html << "  <input type='hidden' name='mail'              id='mail'           value='#{payment.mail}' />\n"
 
-    html << "  <input type='submit' name='submit_paiementcic' value='#{options[:button_text]}' class='#{options[:button_class]}' />\n"
+    html << "  <input type='submit' name='submit_cic_payment_form' value='#{options[:button_text]}' class='#{options[:button_class]}' />\n"
     html << "</form>\n"
 
     html.respond_to?(:html_safe) ? html.html_safe : html

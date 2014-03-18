@@ -1,12 +1,12 @@
 #encoding: utf-8
 require 'digest/sha1'
 require 'openssl'
-require 'paiement_settings'
+require 'payment_settings'
 require "view_helpers/form_helpers"
 
 ActionView::Base.send :include, FormHelpers
 
-class PaiementCic < PaiementSettings
+class CicPayment < PaymentSettings
 
   cattr_accessor :target_url, :version, :hmac_key, :tpe, :societe, :url_retour, :url_retour_ok, :url_retour_err, :societe
   attr_accessor :date, :montant, :reference, :texte_libre, :lgue, :mail
@@ -71,7 +71,7 @@ class PaiementCic < PaiementSettings
   end
 
   def self.mac_string params
-    hmac_key = PaiementCic.new
+    hmac_key = CicPayment.new
     mac_string = [hmac_key.tpe, params['date'], params['montant'], params['reference'], params['texte-libre'], hmac_key.version, params['code-retour'], params['cvx'], params['vld'], params['brand'], params['status3ds'], params['numauto'], params['motifrefus'], params['originecb'], params['bincb'], params['hpancb'], params['ipclient'], params['originetr'], params['veres'], params['pares']].join('*') + "*"
   end
 

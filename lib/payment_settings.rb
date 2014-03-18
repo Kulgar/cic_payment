@@ -1,6 +1,6 @@
 #encoding: utf-8
 
-class PaiementSettings
+class PaymentSettings
   def initialize
     @settings = {}
   end
@@ -29,13 +29,13 @@ private
     if payment[:montant]
       @settings.update(:montant => ("%.2f" % payment[:montant]) + "EUR")
     else
-      raise "PaiementCic error ! Missing required parameter :montant"
+      raise "CicPayment error ! Missing required parameter :montant"
     end
 
     if payment[:reference]
       @settings.update(:reference => payment[:reference])
     else
-      raise "PaiementCic error ! Missing required parameter :reference"
+      raise "CicPayment error ! Missing required parameter :reference"
     end
 
   end
@@ -43,18 +43,18 @@ private
   def load_yaml_config
     @settings ||= {}
 
-    path = Rails.root.join('config', 'paiement_cic.yml')
+    path = Rails.root.join('config', 'cic_payment.yml')
 
     if File.exist?(path)
       config = YAML::load(ERB.new(File.read(path)).result)
     else
-      raise "File config/paiement_cic.yml does not exist"
+      raise "File config/cic_payment.yml does not exist"
     end
 
     env = Rails.env
 
     unless config[env]
-      raise "config/paiement_cic.yml is missing a section for `#{env}`"
+      raise "config/cic_payment.yml is missing a section for `#{env}`"
     end
 
     settings = {
@@ -81,7 +81,7 @@ private
       if value
         @settings.update(key => value)
       else
-        raise "PaiementCic error ! Missing parameter :#{key} in /config/paiement_cic.yml config file"
+        raise "CicPayment error ! Missing parameter :#{key} in /config/cic_payment.yml config file"
       end
     end
 

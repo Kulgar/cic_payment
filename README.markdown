@@ -1,6 +1,6 @@
-# Paiement CIC
+# CIC Payment
 
-Paiement CIC is a plugin to ease credit card payment with the CIC / Credit Mutuel banks system version 3.0.
+CIC Payment is a plugin to ease credit card payment with the CIC / Credit Mutuel banks system version 3.0.
 It's a Ruby on Rails port of the connexion kits published by the bank.
 
 * The banks payment [site](http://www.cmcicpaiement.fr)
@@ -10,13 +10,13 @@ It's a Ruby on Rails port of the connexion kits published by the bank.
 
 In your Gemfile
 
-    gem 'paiement_cic', :git => 'git://github.com/gbarillot/paiementcic.git'
+    gem 'cic_payment'
 
 ## USAGE
 
 ### Setup
 
-Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
+Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
 
     base: &base
       # Hmac key calculated with the js calculator given by CIC
@@ -52,7 +52,7 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
     test:
       <<: *base
 
-***Note:*** this file _must_ be named _exactly_ `paiement_cic.yml` or an exception would be raised
+***Note:*** this file _must_ be named _exactly_ `cic_payment.yml` or an exception would be raised
 
 `target_url` needs to point to the controller method handling the bank response (e.g. see below `payments#create`)
 
@@ -62,7 +62,7 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
 
       def index
         # :montant and :reference are required, you can also add :texte_libre, :lgue and :mail arguements if needed
-        @request = PaiementCic.new.request(:montant => '123', :reference => '456')
+        @request = CicPayment.new.request(:montant => '123', :reference => '456')
       end
 
 ### Then in the view, generate the form:
@@ -70,11 +70,11 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
   The form generated is populated with hidden fields that will be sent to the bank gateway
 
     # :button_text and :button_class are optionnal, use them for style cutomization if needed
-    = paiement_cic_form(@request, :button_text => 'Payer', :button_class => 'btn btn-pink')
+    = cic_payment_form(@request, :button_text => 'Payer', :button_class => 'btn btn-pink')
 
 ### Now, listen to the bank transaction result:
 
-  Just add a create action in your paiement controller
+  Just add a create action in your payment controller
 
     class PaymentsController < ApplicationController
 
@@ -82,11 +82,11 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
 
       def index
         # :montant and :reference are required, you can also add :texte_libre, :lgue and :mail arguements if needed
-        @request = PaiementCic.new.request(:montant => '123', :reference => '456')
+        @request = CicPayment.new.request(:montant => '123', :reference => '456')
       end
 
       def create
-        @response = PaiementCic.new.response(params)
+        @response = CicPayment.new.response(params)
 
         # Save and/or process the order as you need it (or not)
       end
