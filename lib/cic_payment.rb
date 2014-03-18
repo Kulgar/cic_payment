@@ -71,18 +71,20 @@ class CicPayment < PaymentSettings
     # <TPE>*<date>*<montant>*<reference>*<texte-libre>*3.0*<code-retour>*
     # <cvx>*<vld>*<brand>*<status3ds>*<numauto>*<motifrefus>*<originecb>*
     # <bincb>*<hpancb>*<ipclient>*<originetr>*<veres>*<pares>*
-    [
+    chain = [
       self.tpe, params['date'], params['montant'], params['reference'], params['texte-libre'], self.version, params['code-retour'], 
       params['cvx'], params['vld'], params['brand'], params['status3ds'], params["numauto"], params['motifrefus'], params['originecb'], 
       params['bincb'], params['hpancb'], params['ipclient'], params['originetr'], params['veres'], params['pares'], ""
     ].join('*')
+    
+    hmac_token(false, chain)
   end
 
   def verify_hmac params
     params['MAC'] ? hmac = params['MAC'] : hmac = ""
 
     # Check if the HMAC matches the HMAC of the data string
-    hmac_token(false, response_mac(params)) == hmac
+    response_mac(params) == hmac
   end
 
   # Return the HMAC for a data string
