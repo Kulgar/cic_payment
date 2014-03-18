@@ -17,7 +17,7 @@ class PaiementSettings
 private
   def optionnal_params(payment)
     @settings ||= {}
-    @settings.update(:texte_libre => (payment[:text_libre] || ""))
+    @settings.update(:texte_libre => (payment[:texte_libre] || ""))
     @settings.update(:lgue        => (payment[:lgue]        || "FR"))
     @settings.update(:mail        => (payment[:mail]       || ""))
   end

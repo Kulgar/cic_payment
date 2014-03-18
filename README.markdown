@@ -61,7 +61,7 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
     class PaymentsController < ApplicationController
 
       def index
-        # :montant and :reference are required, you can also add :text_libre, :lgue and :mail arguements if needed
+        # :montant and :reference are required, you can also add :texte_libre, :lgue and :mail arguements if needed
         @request = PaiementCic.new.request(:montant => '123', :reference => '456')
       end
 
@@ -81,7 +81,7 @@ Create a `paiement_cic.yml` config file in the `Rails.root/config` directory:
       protect_from_forgery :except => [:create]
 
       def index
-        # :montant and :reference are required, you can also add :text_libre, :lgue and :mail arguements if needed
+        # :montant and :reference are required, you can also add :texte_libre, :lgue and :mail arguements if needed
         @request = PaiementCic.new.request(:montant => '123', :reference => '456')
       end
 

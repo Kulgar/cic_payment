@@ -43,7 +43,7 @@ class PaiementCic < PaiementSettings
     @montant     = params[:montant]
     @reference   = params[:reference]
 
-    @texte_libre = params[:text_libre]
+    @texte_libre = params[:texte_libre]
     @lgue        = params[:lgue]
     @mail        = params[:mail]
 
