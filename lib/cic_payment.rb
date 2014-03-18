@@ -56,7 +56,7 @@ class CicPayment < PaymentSettings
       when "Annulation"
         params.update(:success => false)
       when "payetest", "paiement"
-        params.update(:success => false)
+        params.update(:success => true)
       else
         params.update(:success => false)
       end
