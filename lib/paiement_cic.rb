@@ -89,8 +89,21 @@ class PaiementCic < PaiementSettings
 
   # Return the HMAC for a data string
 	def hmac_token
-
-    chaine = [self.tpe,
+    # This chain must contains:
+    # <TPE>*<date>*<montant>*<reference>*<texte-libre>*<version>*<lgue>*<societe>*<mail>*
+    # <nbrech>*<dateech1>*<montantech1>*<dateech2>*<montantech2>*<dateech3>*<montantech3>*
+    # <dateech4>*<montantech4>*<options>
+    # For a regular payment, it will be somthing like this: 
+    # 1234567*05/12/2006:11:55:23*62.73EUR*ABERTYP00145*ExempleTexteLibre*3.0*FR*monSite1*internaute@sonemail.fr**********
+    #
+    # So the chain array must contains 9 filled elements + 9 unfilled elements + 1 final star
+    # <text-libre>, <lgue> and <mail> are optional, but don't forget to put them in the chain if you decide to add
+    # them to the form
+    #
+    # For a fragmented payment: 
+    # 1234567*05/12/2006:11:55:23*62.73EUR*ABERTYP00145*ExempleTexteLibre*3.0*FR*monSite1*internaute@sonemail.fr*
+    # 4*05/12/2006*16.23EUR*05/01/2007*15.5EUR*05/02/2007*15.5EUR*05/03/2007*15.5EUR*
+    chain = [self.tpe,
         self.date,
         self.montant,
         self.reference,
@@ -98,11 +111,11 @@ class PaiementCic < PaiementSettings
         self.version,
         self.lgue,
         self.societe,
-        "", "", "", "", "", "", "", "", "", "", ""
+        self.mail,
+        "", "", "", "", "", "", "", "", "", "" # 10 stars: 9 for fragmented unfilled params + 1 final star 
     ].join("*")
 
-
-		hmac_sha1(usable_key(self.hmac_key), chaine).downcase
+		hmac_sha1(usable_key(self.hmac_key), chain).downcase
 	end
 
 protected
