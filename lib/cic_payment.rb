@@ -51,44 +51,42 @@ class CicPayment < PaymentSettings
   end
 
   def response(params)
-
     if verify_hmac(params)
-
-      if params['code-retour'] == "Annulation"
+      case params['code-retour']
+      when "Annulation"
         params.update(:success => false)
-
-      elsif params['code-retour'] == "payetest"
-        params.update(:success => true)
-
-      elsif params['code-retour'] == "paiement"
-        params.update(:success => true)
+      when "payetest", "paiement"
+        params.update(:success => false)
+      else
+        params.update(:success => false)
       end
-
     else
       params.update(:success => false)
     end
-
   end
 
-  def self.mac_string params
-    hmac_key = CicPayment.new
-    mac_string = [hmac_key.tpe, params['date'], params['montant'], params['reference'], params['texte-libre'], hmac_key.version, params['code-retour'], params['cvx'], params['vld'], params['brand'], params['status3ds'], params['numauto'], params['motifrefus'], params['originecb'], params['bincb'], params['hpancb'], params['ipclient'], params['originetr'], params['veres'], params['pares']].join('*') + "*"
+  # Use this function for your tests to create the mac properly
+  def response_mac params
+    # The HMAC returned by the bank uses this chain: 
+    # <TPE>*<date>*<montant>*<reference>*<texte-libre>*3.0*<code-retour>*
+    # <cvx>*<vld>*<brand>*<status3ds>*<numauto>*<motifrefus>*<originecb>*
+    # <bincb>*<hpancb>*<ipclient>*<originetr>*<veres>*<pares>*
+    [
+      self.tpe, params['date'], params['montant'], params['reference'], params['texte-libre'], self.version, params['code-retour'], 
+      params['cvx'], params['vld'], params['brand'], params['status3ds'], params["numauto"], params['motifrefus'], params['originecb'], 
+      params['bincb'], params['hpancb'], params['ipclient'], params['originetr'], params['veres'], params['pares'], ""
+    ].join('*')
   end
 
   def verify_hmac params
-    mac_string = [self.tpe, params['date'], params['montant'], params['reference'], params['texte-libre'], self.version, params['code-retour'], params['cvx'], params['vld'], params['brand'], params['status3ds'], params['numauto'], params['motifrefus'], params['originecb'], params['bincb'], params['hpancb'], params['ipclient'], params['originetr'], params['veres'], params['pares']].join('*') + "*"
-
     params['MAC'] ? hmac = params['MAC'] : hmac = ""
-    self.valid_hmac?(hmac)
+
+    # Check if the HMAC matches the HMAC of the data string
+    hmac_token(false, response_mac(params)) == hmac
   end
 
-  # Check if the HMAC matches the HMAC of the data string
-	def valid_hmac?(sent_mac)
-		hmac_token == sent_mac.downcase
-	end
-
   # Return the HMAC for a data string
-	def hmac_token
+	def hmac_token(form_hmac = true, chain = nil)
     # This chain must contains:
     # <TPE>*<date>*<montant>*<reference>*<texte-libre>*<version>*<lgue>*<societe>*<mail>*
     # <nbrech>*<dateech1>*<montantech1>*<dateech2>*<montantech2>*<dateech3>*<montantech3>*
@@ -103,17 +101,19 @@ class CicPayment < PaymentSettings
     # For a fragmented payment: 
     # 1234567*05/12/2006:11:55:23*62.73EUR*ABERTYP00145*ExempleTexteLibre*3.0*FR*monSite1*internaute@sonemail.fr*
     # 4*05/12/2006*16.23EUR*05/01/2007*15.5EUR*05/02/2007*15.5EUR*05/03/2007*15.5EUR*
-    chain = [self.tpe,
-        self.date,
-        self.montant,
-        self.reference,
-        self.texte_libre,
-        self.version,
-        self.lgue,
-        self.societe,
-        self.mail,
-        "", "", "", "", "", "", "", "", "", "" # 10 stars: 9 for fragmented unfilled params + 1 final star 
-    ].join("*")
+    if form_hmac && chain.blank?
+      chain = [self.tpe,
+          self.date,
+          self.montant,
+          self.reference,
+          self.texte_libre,
+          self.version,
+          self.lgue,
+          self.societe,
+          self.mail,
+          "", "", "", "", "", "", "", "", "", "" # 10 stars: 9 for fragmented unfilled params + 1 final star 
+      ].join("*")
+    end
 
 		hmac_sha1(usable_key(self.hmac_key), chain).downcase
 	end
