@@ -94,7 +94,7 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
       def create
         @response = CicPayment.new.response(params)
         
-        # Save and/or process the order as you need it (or not)
+        # Save and/or process the order as you need it (or not).
         # Here is an example of what you can do: 
         if @response[:success]
             order_info = JSON.parse(@response["texte-libre"])
@@ -114,9 +114,9 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
         if Rails.env.production?
             # Sends back the expected message to the bank:
             if @response[:success]
-                render :inline => "version=2<LF>cdr=0<LF>"
+                render :text => "version=2\ncdr=0\n"
             else
-                render :inline => "version=2<LF>cdr=1<LF>"
+                render :text => "version=2\ncdr=1\n"
             end
         else
             if @response[:success]
@@ -130,7 +130,7 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
 
       ...
 
-  The @response variable contains all the regular rails params received from the bank, plus an extra :success boolean parameter.
+  The @response variable contains all the regular rails params received from the bank, plus an extra :success boolean parameter. Also the return code is already checked by the gem, the :success boolean will equal false for the "Annulation" (canceled) return code for instance. 
 
 
 ## Contributors
