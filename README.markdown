@@ -80,15 +80,52 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
 
       protect_from_forgery :except => [:create]
 
-      def index
+      # New order, for instance
+      def new
+        @order = Order.build_from_basket(current_user.basket)
+        order_info = { :user_id => current_user.id, :basket_id => current_user.basket.id }.to_json
         # :montant and :reference are required, you can also add :texte_libre, :lgue and :mail arguements if needed
-        @request = CicPayment.new.request(:montant => '123', :reference => '456')
+        @request = CicPayment.new.request(:montant => @order.price, :reference => @order.unique_token, 
+            :texte_libre => order_info)
       end
 
+      # The action called by the 'return interface url' that you gave to the bank. 
+      # Careful: It is not the same url as the ones you can configure in cic_payment.yml
       def create
         @response = CicPayment.new.response(params)
-
+        
         # Save and/or process the order as you need it (or not)
+        # Here is an example of what you can do: 
+        if @response[:success]
+            order_info = JSON.parse(@response["texte-libre"])
+            basket = Basket.find(order_info["basket_id"].to_i)
+            user   = User.find(order_info["user_id"].to_i)
+            order = Order.build_from_basket(@response["reference"])
+            if order.save
+                OrderMailer.thanks(user.id, order.id).deliver
+                basket.destroy # Or save it for statistics
+            else
+                logger.fatal "A fatal error occured for user #{user.id} while buying #{order.inspect}."
+                logger.fatal order.errors.full_messages
+                @response[:success] = false # Don't send back a success message.
+            end
+        end
+        
+        if Rails.env.production?
+            # Sends back the expected message to the bank:
+            if @response[:success]
+                render :inline => "version=2<LF>cdr=0<LF>"
+            else
+                render :inline => "version=2<LF>cdr=1<LF>"
+            end
+        else
+            if @response[:success]
+                flash[:notice] = "Thanks for your purchase. (Dev mode only)"
+            else
+                flash[:error] = "An error occured. (Dev mode only)"
+            end
+            redirect_to root_path
+        end
       end
 
       ...
@@ -100,6 +137,7 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
 * Novelys Team : original gem and cryptographic stuff
 * Guillaume Barillot : refactoring and usage simplification
 * Michael Brung : configuration file refactoring.
+* Regis Millet (Kulgar) : refactoring and solved some bugs
 
 ## Licence
 released under the MIT license
