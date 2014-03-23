@@ -64,13 +64,27 @@ class CicPayment < PaymentSettings
       params.update(:success => false)
     end
   end
-
-  # Use this function for your tests to create the mac properly
+  
+  # === response_mac(params)
+  # This function is used to verify that the sent MAC by CIC is the one expected.
+  # It calculates the hmac from the correct chain of params. 
+  # 
+  # The HMAC returned by the bank uses this chain: 
+  # <TPE>*<date>*<montant>*<reference>*<texte-libre>*3.0*<code-retour>*
+  # <cvx>*<vld>*<brand>*<status3ds>*<numauto>*<motifrefus>*<originecb>*
+  # <bincb>*<hpancb>*<ipclient>*<originetr>*<veres>*<pares>*
+  #
+  # Here is an example of the parameters sent back by the CIC payment module:
+  #   Parameters: {"TPE"=>"012345", "date"=>"01/01/2011_a_00:00:00", "montant"=>"10.00EUR", "reference"=>"12_unique_caracters_string", 
+  #     "MAC"=>"CalculatedMAC by the bank", 
+  #     "texte-libre"=>"{\"custom_id\":1,\"user_id\":1,\"text\":\"Your text\"}", 
+  #     "code-retour"=>"payetest", "cvx"=>"oui", "vld"=>"1219", "brand"=>"na", "status3ds"=>"-1", 
+  #     "motifrefus"=>"", "originecb"=>"00x", "bincb"=>"000001", "hpancb"=>"F6FBF44A7EC30941DA2E411AA8A50C77F174B2BB", 
+  #     "ipclient"=>"01.01.01.01", "originetr"=>"FRA", "veres"=>"", "pares"=>"", "modepaiement"=>"CB"}
+  #
+  # You can also Use this function for your tests to simulate an exchange with the bank.
   def response_mac params
-    # The HMAC returned by the bank uses this chain: 
-    # <TPE>*<date>*<montant>*<reference>*<texte-libre>*3.0*<code-retour>*
-    # <cvx>*<vld>*<brand>*<status3ds>*<numauto>*<motifrefus>*<originecb>*
-    # <bincb>*<hpancb>*<ipclient>*<originetr>*<veres>*<pares>*
+    
     chain = [
       self.tpe, params['date'], params['montant'], params['reference'], params['texte-libre'], self.version, params['code-retour'], 
       params['cvx'], params['vld'], params['brand'], params['status3ds'], params["numauto"], params['motifrefus'], params['originecb'], 
@@ -84,7 +98,7 @@ class CicPayment < PaymentSettings
     params['MAC'] ? hmac = params['MAC'] : hmac = ""
 
     # Check if the HMAC matches the HMAC of the data string
-    response_mac(params) == hmac
+    response_mac(params).downcase == hmac.downcase
   end
 
   # Return the HMAC for a data string

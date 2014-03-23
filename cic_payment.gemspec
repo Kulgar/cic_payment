@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "cic_payment"
-  s.version     = "0.4.1"
+  s.version     = "0.4.2"
   s.date        = "2014-03-18"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Novelys Team", 'Guillaume Barillot', 'Regis Millet (aka Kulgar)']
