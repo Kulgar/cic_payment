@@ -135,6 +135,12 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
 ## TODO
 * Handle multipart payments
 * Better handle return codes so that we can do this: @response.cdr to retrieve correct cdr
+* Add some tests (using rspec or minitest...)
+
+## How to contribute?
+* Fork this repository
+* Create a branch to add some functionalities or solve some bugs
+* Make a pull request - I will try to review and merge it asap
 
 ## Contributors
 * Novelys Team : original gem and cryptographic stuff
