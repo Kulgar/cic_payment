@@ -113,7 +113,7 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
         
         if Rails.env.production?
             # Sends back the expected message to the bank:
-            if @response[:success]
+            if @response[:success] || @response["code-retour"].downcase == "annulation"
                 render :text => "version=2\ncdr=0\n"
             else
                 render :text => "version=2\ncdr=1\n"
@@ -132,6 +132,9 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
 
   The @response variable contains all the regular rails params received from the bank, plus an extra :success boolean parameter. Also the return code is already checked by the gem, the :success boolean will equal false for the "Annulation" (canceled) return code for instance. 
 
+## TODO
+* Handle multipart payments
+* Better handle return codes so that we can do this: @response.cdr to retrieve correct cdr
 
 ## Contributors
 * Novelys Team : original gem and cryptographic stuff
