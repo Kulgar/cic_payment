@@ -31,6 +31,9 @@ Create a `cic_payment.yml` config file in the `Rails.root/config` directory:
       # Merchant name
       societe: "marchantname"
 
+      # Devise
+      devise: "CAD"
+
       # Auto response URL
       url_retour: 'http://return.fr'
 

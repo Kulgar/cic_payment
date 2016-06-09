@@ -8,12 +8,13 @@ ActionView::Base.send :include, FormHelpers
 
 class CicPayment < PaymentSettings
 
-  cattr_accessor :target_url, :version, :hmac_key, :tpe, :societe, :url_retour, :url_retour_ok, :url_retour_err, :societe
+  cattr_accessor :target_url, :version, :hmac_key, :tpe, :societe, :devise, :url_retour, :url_retour_ok, :url_retour_err
   attr_accessor :date, :montant, :reference, :texte_libre, :lgue, :mail
 
   @@tpe            = ""
   @@version        = ""
   @@societe        = ""
+  @@devise         = "CAD"
   @@hmac_key       = ""
   @@target_url     = ""
   @@url_retour     = ""
@@ -27,6 +28,7 @@ class CicPayment < PaymentSettings
     @@tpe            = settings[:tpe]
     @@version        = settings[:version]
     @@societe        = settings[:societe]
+    @@devise        = settings[:devise]
     @@hmac_key       = settings[:hmac_key]
     @@target_url     = settings[:target_url]
     @@url_retour     = settings[:url_retour]

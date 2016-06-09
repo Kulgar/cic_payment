@@ -27,7 +27,7 @@ private
     @settings ||= {}
 
     if payment[:montant]
-      @settings.update(:montant => ("%.2f" % payment[:montant]) + "EUR")
+      @settings.update(:montant => ("%.2f" % payment[:montant]) + @settings[:devise])
     else
       raise "CicPayment error ! Missing required parameter :montant"
     end
@@ -61,6 +61,7 @@ private
       :tpe            => config[env]['tpe'],
       :version        => config[env]['version'],
       :societe        => config[env]['societe'],
+      :devise         => config[env]['devise'],
       :hmac_key       => config[env]['hmac_key'],
       :target_url     => config[env]['target_url']
     }
