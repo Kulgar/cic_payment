@@ -54,14 +54,14 @@ class CicPayment < PaymentSettings
     if verify_hmac(params)
       case params['code-retour']
       when "Annulation"
-        params.update(:success => false)
+        params.merge(:success => false)
       when "payetest", "paiement"
-        params.update(:success => true)
+        params.merge(:success => true)
       else
-        params.update(:success => false)
+        params.merge(:success => false)
       end
     else
-      params.update(:success => false)
+      params.merge(:success => false)
     end
   end
   
